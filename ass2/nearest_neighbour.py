@@ -14,7 +14,9 @@ def converting(x):
     PI = 3.141592;
     deg = math.floor(x); 
     min = x - deg; 
-    return  PI * (deg + 5.0 * min/ 3.0) / 180.0; 
+    rad = PI * (deg + 5.0 * min/ 3.0) / 180.0; 
+
+    return rad
 
 
 def claculateGEODist(x,y,x2,y2):
@@ -23,7 +25,7 @@ def claculateGEODist(x,y,x2,y2):
     q1 = math.cos( converting(x) - converting(x2) );
     q2 = math.cos( converting(y) - converting(y2) );
     q3 = math.cos( converting(y) + converting(y2) );
-    return (int) ( RRR * math.acos( 0.5*((1.0+q1)*q2 - (1.0-q1)*q3) ) + 1.0)
+    return math.floor(( RRR * math.acos( 0.5*((1.0+q1)*q2 - (1.0-q1)*q3) ) + 1.0))
 
 def createGraph(nodes, dimension, edge_type):
     graph = {}
@@ -87,7 +89,7 @@ def nearest_neighbour_algorithm(graph):
     return tour, cost
 
 if __name__ == '__main__':
-    directory = "/Users/sofiachiarello/Desktop/unipd/advanced algorthm/ass2/tsp_dataset"
+    directory = "/Users/sofiachiarello/Desktop/unipd/advanced algorthm/Adv_algorithm/ass2/tsp_dataset"
     
     #initializing variables
     measuredTime = []
@@ -120,23 +122,25 @@ if __name__ == '__main__':
             dimensions.append(dimension)
             weight_type = (data[4].split(' ')[-1])
             if weight_type == "EUC_2D":
-                data = data[6:len(data)-1]
+                data = data[6:len(data)]
             else: 
                 weight_format =  (data[5].split(' '))[1] 
                 display_data_type =  (data[6].split(' '[-1]))
-                data = data[7:len(data)-1]
+                data = data[7:len(data)]
                 if data[0] == "NODE_COORD_SECTION":
-                    data = data[1:len(data)-1]
+                    data = data[1:len(data)]
 
 
             nodes = []
-            for i in range(dimension-1):
+            for i in range(dimension):
+                if 'EOF' in data[i]: break
                 point = " ".join(data[i].strip().split()) # Remove duplicate spaces in between line
                 point = point.split() # Separate line by space
                 nodes.append([int(point[0]),float(point[1]), float(point[2])])
 
             #print(nodes, " size: ", dimension)
             graph = createGraph(nodes, dimension, weight_type)
+            
             
         
              #calculate the time 
