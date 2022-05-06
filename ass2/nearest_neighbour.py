@@ -12,7 +12,7 @@ import gc
 
 def converting(x):
     PI = 3.141592;
-    deg = math.floor(x); 
+    deg = int(x); 
     min = x - deg; 
     rad = PI * (deg + 5.0 * min/ 3.0) / 180.0; 
 
@@ -22,10 +22,10 @@ def converting(x):
 def claculateGEODist(x,y,x2,y2):
     RRR = 6378.388;
 
-    q1 = math.cos( converting(x) - converting(x2) );
-    q2 = math.cos( converting(y) - converting(y2) );
-    q3 = math.cos( converting(y) + converting(y2) );
-    return math.floor(( RRR * math.acos( 0.5*((1.0+q1)*q2 - (1.0-q1)*q3) ) + 1.0))
+    q1 = math.cos( converting(y) - converting(y2) );
+    q2 = math.cos( converting(x) - converting(x2) );
+    q3 = math.cos( converting(x) + converting(x2) );
+    return int( RRR * math.acos( 0.5*((1.0+q1)*q2 - (1.0-q1)*q3) ) + 1.0)
 
 def createGraph(nodes, dimension, edge_type):
     graph = {}
@@ -138,18 +138,15 @@ if __name__ == '__main__':
                 point = point.split() # Separate line by space
                 nodes.append([int(point[0]),float(point[1]), float(point[2])])
 
-            #print(nodes, " size: ", dimension)
             graph = createGraph(nodes, dimension, weight_type)
             
-            
-        
              #calculate the time 
             start_time = perf_counter_ns()
             for i in range(num_calls):
                 tour, cost = nearest_neighbour_algorithm(graph)
             end_time = perf_counter_ns()
             gc.enable()
-            
+           
             
 
             end_start = ((end_time - start_time)/num_calls)/tentonine 
