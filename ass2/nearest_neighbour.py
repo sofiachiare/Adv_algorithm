@@ -3,7 +3,7 @@ import heapq
 from pickle import NONE
 import time
 import os
-
+import matplotlib.pyplot as plt
 from pathlib import Path
 import numpy as np
 import tabulate
@@ -12,18 +12,20 @@ import gc
 
 def converting(x):
     PI = 3.141592;
-    deg = math.floor(x); 
+    deg = int(x); 
     min = x - deg; 
-    return  PI * (deg + 5.0 * min/ 3.0) / 180.0; 
+    rad = PI * (deg + 5.0 * min/ 3.0) / 180.0; 
+
+    return rad
 
 
 def claculateGEODist(x,y,x2,y2):
     RRR = 6378.388;
 
-    q1 = math.cos( converting(x) - converting(x2) );
-    q2 = math.cos( converting(y) - converting(y2) );
-    q3 = math.cos( converting(y) + converting(y2) );
-    return (int) ( RRR * math.acos( 0.5*((1.0+q1)*q2 - (1.0-q1)*q3) ) + 1.0)
+    q1 = math.cos( converting(y) - converting(y2) );
+    q2 = math.cos( converting(x) - converting(x2) );
+    q3 = math.cos( converting(x) + converting(x2) );
+    return int( RRR * math.acos( 0.5*((1.0+q1)*q2 - (1.0-q1)*q3) ) + 1.0)
 
 def createGraph(nodes, dimension, edge_type):
     graph = {}
@@ -86,8 +88,23 @@ def nearest_neighbour_algorithm(graph):
     cost += return_distance(graph, tour[i+1], tour[0])
     return tour, cost
 
+def plotResult(xy_graph, yname, legend):
+    # sort the keys (number of vertices) of the dictionary and plot them
+    plt.plot( *zip(*sorted(xy_graph) ), ':k')
+    #print(yname, " " , sorted(xy_graph))
+    plt.legend([legend])
+    #plt.yscale("log")
+    # x-axis label
+    plt.xlabel('Number of Vertices')
+    # frequency label
+    plt.ylabel(yname)
+    # plot title
+    plt.title('Nearest Neighbour Algorithm plot')
+    # function to show the plot
+    plt.show()
+
 if __name__ == '__main__':
-    directory = "/Users/sofiachiarello/Desktop/unipd/advanced algorthm/ass2/tsp_dataset"
+    directory = "/Users/sofiachiarello/Desktop/unipd/advanced algorthm/Adv_algorithm/ass2/tsp_dataset"
     
     #initializing variables
     measuredTime = []
@@ -100,7 +117,8 @@ if __name__ == '__main__':
     finalTotalTime = 0.0
     errors = []
     optimalsolution = [7542,3323,6528,35002, 18659688 , 426, 40160, 134602, 21282, 21294, 50778, 6859, 7013]
-
+    measuredTime_Size = []
+    size_error = []
 
 
     #reading and sorting files
@@ -120,48 +138,52 @@ if __name__ == '__main__':
             dimensions.append(dimension)
             weight_type = (data[4].split(' ')[-1])
             if weight_type == "EUC_2D":
-                data = data[6:len(data)-1]
+                data = data[6:len(data)]
             else: 
                 weight_format =  (data[5].split(' '))[1] 
                 display_data_type =  (data[6].split(' '[-1]))
-                data = data[7:len(data)-1]
+                data = data[7:len(data)]
                 if data[0] == "NODE_COORD_SECTION":
-                    data = data[1:len(data)-1]
+                    data = data[1:len(data)]
 
 
             nodes = []
-            for i in range(dimension-1):
+            for i in range(dimension):
+                if 'EOF' in data[i]: break
                 point = " ".join(data[i].strip().split()) # Remove duplicate spaces in between line
                 point = point.split() # Separate line by space
                 nodes.append([int(point[0]),float(point[1]), float(point[2])])
 
-            #print(nodes, " size: ", dimension)
             graph = createGraph(nodes, dimension, weight_type)
             
-        
              #calculate the time 
             start_time = perf_counter_ns()
             for i in range(num_calls):
                 tour, cost = nearest_neighbour_algorithm(graph)
             end_time = perf_counter_ns()
             gc.enable()
-            
+           
             
 
             end_start = ((end_time - start_time)/num_calls)/tentonine 
             finalTotalTime = finalTotalTime + end_start
             weights.append(cost)
             measuredTime.append(float(end_start)) 
-            errors.append(float((cost-optimalsolution[index])/(optimalsolution[index]*1.00)))
+            error = float((cost-optimalsolution[index])/(optimalsolution[index]*1.00))
+            errors.append(error)
+            measuredTime_Size.append((int(dimension),float(end_start)))
+            size_error.append((int(dimension),float(error)))
             index = index +1
 
     
-    zipFileSizeSol = zip(files, descriptions, dimensions, weights, optimalsolution, measuredTime, errors)
+    zipFileSizeSol = zip(files, dimensions, weights, optimalsolution, measuredTime, errors)
   
     tableRunOutput = tabulate.tabulate(zipFileSizeSol, headers=['File', 'Description', 'N', 'Solution', 'Optimal Solution','Time', 'Error'], tablefmt='orgtbl')
     print(tableRunOutput)
 
     print("Total time: (s) ", finalTotalTime)
+    plotResult(size_error, "Error", "Errors")
+    plotResult(measuredTime_Size, 'Execution Time', "Measured Time")
   
 
 
