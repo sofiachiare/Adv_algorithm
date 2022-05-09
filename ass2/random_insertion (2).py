@@ -185,13 +185,17 @@ if __name__ == '__main__':
 
     
     zipFileSizeSol = zip(files, dimensions, weights, optimalsolution, measuredTime, errors)
-  
+    
     tableRunOutput = tabulate.tabulate(zipFileSizeSol, headers=['File', 'N', 'Solution', 'Optimal Solution','Time', 'Error'], tablefmt='orgtbl')
     print(tableRunOutput)
+
+    print(size_error)
 
     print("Total time: (s) ", finalTotalTime)
     plotResult(size_error, "Error")
     plotResult(measuredTime_Size, 'Execution Time')
+
+
   
 
 

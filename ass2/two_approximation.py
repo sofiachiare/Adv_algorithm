@@ -1,4 +1,5 @@
 #from asyncio.windows_events import INFINITE, NULL
+from imaplib import Time2Internaldate
 import math
 import heapq
 from pickle import NONE
@@ -139,6 +140,38 @@ def plotResult(xy_graph, yname, legend):
     # function to show the plot
     plt.show()
 
+def PlotAllAlgs(size_error, measuredTime_Size, dimensions):
+    #tableNN
+    weightsNN = [8980, 4048, 8191, 41660, 24630960, 511, 49336, 162430, 27807, 26947, 61979, 9988, 10586]
+    timeNN = [0.002429881, 0.00010459, 0.048470969, 1.696345041, 16.123477209, 0.002061835, 0.115817691, 0.178403697, 0.013820631, 0.014313427, 1.55643324, 0.00019414, 0.000238769]
+    errorsNN = [(52, 0.19066560594006896), (14, 0.21817634667469155), (150, 0.25474877450980393), (493, 0.19021770184560882), (1000, 0.3200092091571949), (51, 0.19953051643192488), (202, 0.22848605577689243), (229, 0.2067428418597049), (100, 0.3065971243304201), (100, 0.26547384239691935), (442, 0.22058765607152703), (16, 0.4561889488263595), (22, 0.5094823898474262)]
+
+
+    #tableRandom
+    weightsRand = [8181, 3611, 7151, 37958, 20778263, 469, 44016, 144378, 22585, 22446, 59131, 6923, 7145]
+    timeRand = [0.004940066, 0.000174984, 0.095860741, 4.584268428, 69.278226071, 0.003986689, 0.491900059, 0.492335781, 0.031603701, 0.030743858, 4.016485442, 0.000262737, 0.000609234]
+    errorsRand = [(52, 0.08220631132325643), (14, 0.039723141739392114), (150, 0.10661764705882353), (493, 0.12122164447745844), (1000, 0.11859046089087878), (51, 0.11032863849765258), (202, 0.12079183266932271), (229, 0.07052644091469666), (100, 0.043792876609341225), (100, 0.1246360477129708), (442, 0.15806057741541613), (16, 0.04811196967487972), (22, 0.02851846570654499)]
+
+    # sort the keys (number of vertices) of the dictionary and plot them
+    plt.plot(*zip(*sorted(size_error)))
+    plt.plot(*zip(*sorted(errorsNN)))
+    plt.plot(*zip(*sorted(errorsRand)))
+    plt.legend(["2-approx" , "NN","Random"])
+    # x-axis label
+    plt.xlabel('Number of Vertices')
+    # frequency label
+    plt.ylabel('Errors')
+    # plot title
+    plt.title('Comparison between three algorithm')
+    # function to show the plot
+    plt.show()
+
+    
+
+
+
+
+
 if __name__ == '__main__':
     directory = "/Users/sofiachiarello/Desktop/unipd/advanced algorthm/Adv_algorithm/ass2/tsp_dataset"
     
@@ -227,6 +260,8 @@ if __name__ == '__main__':
 
     plotResult(size_error, "Error", "Errors")
     plotResult(measuredTime_Size, 'Execution Time', "Execution Time")
+
+    PlotAllAlgs(size_error, measuredTime_Size, dimensions)
 
 
 
