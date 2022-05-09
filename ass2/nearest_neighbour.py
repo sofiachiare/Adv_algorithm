@@ -3,7 +3,7 @@ import heapq
 from pickle import NONE
 import time
 import os
-
+import matplotlib.pyplot as plt
 from pathlib import Path
 import numpy as np
 import tabulate
@@ -88,6 +88,21 @@ def nearest_neighbour_algorithm(graph):
     cost += return_distance(graph, tour[i+1], tour[0])
     return tour, cost
 
+def plotResult(xy_graph, yname, legend):
+    # sort the keys (number of vertices) of the dictionary and plot them
+    plt.plot( *zip(*sorted(xy_graph) ), ':k')
+    #print(yname, " " , sorted(xy_graph))
+    plt.legend([legend])
+    #plt.yscale("log")
+    # x-axis label
+    plt.xlabel('Number of Vertices')
+    # frequency label
+    plt.ylabel(yname)
+    # plot title
+    plt.title('Nearest Neighbour Algorithm plot')
+    # function to show the plot
+    plt.show()
+
 if __name__ == '__main__':
     directory = "/Users/sofiachiarello/Desktop/unipd/advanced algorthm/Adv_algorithm/ass2/tsp_dataset"
     
@@ -102,7 +117,8 @@ if __name__ == '__main__':
     finalTotalTime = 0.0
     errors = []
     optimalsolution = [7542,3323,6528,35002, 18659688 , 426, 40160, 134602, 21282, 21294, 50778, 6859, 7013]
-
+    measuredTime_Size = []
+    size_error = []
 
 
     #reading and sorting files
@@ -153,16 +169,21 @@ if __name__ == '__main__':
             finalTotalTime = finalTotalTime + end_start
             weights.append(cost)
             measuredTime.append(float(end_start)) 
-            errors.append(float((cost-optimalsolution[index])/(optimalsolution[index]*1.00)))
+            error = float((cost-optimalsolution[index])/(optimalsolution[index]*1.00))
+            errors.append(error)
+            measuredTime_Size.append((int(dimension),float(end_start)))
+            size_error.append((int(dimension),float(error)))
             index = index +1
 
     
-    zipFileSizeSol = zip(files, descriptions, dimensions, weights, optimalsolution, measuredTime, errors)
+    zipFileSizeSol = zip(files, dimensions, weights, optimalsolution, measuredTime, errors)
   
     tableRunOutput = tabulate.tabulate(zipFileSizeSol, headers=['File', 'Description', 'N', 'Solution', 'Optimal Solution','Time', 'Error'], tablefmt='orgtbl')
     print(tableRunOutput)
 
     print("Total time: (s) ", finalTotalTime)
+    plotResult(size_error, "Error", "Errors")
+    plotResult(measuredTime_Size, 'Execution Time', "Measured Time")
   
 
 
