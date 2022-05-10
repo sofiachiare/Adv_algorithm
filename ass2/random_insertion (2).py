@@ -101,16 +101,17 @@ def random_insertion_algorithm(graph, starting_node):
             if tempweight < min_weight:
                 min_weight = tempweight
                 position = i+1
-        
         path.insert(int(position) , rand_node)
         points.remove(rand_node)
+    
+    path.append(starting_node)
 
     cost = 0
     for i in range(len(path)-1):
         cost += return_distance(graph, path[i], path[i+1])
 
     cost += return_distance(graph, path[i+1], path[0])
-    path.append(path[i])
+
     return path, cost
 
 if __name__ == '__main__':
@@ -163,7 +164,7 @@ if __name__ == '__main__':
                 nodes.append([int(point[0]),float(point[1]), float(point[2])])
 
             graph = createGraph(nodes, dimension, weight_type)
-            starting_node  = next(iter(graph))
+            starting_node  = 1
              #calculate the time 
             start_time = perf_counter_ns()
             for i in range(num_calls):
@@ -172,7 +173,7 @@ if __name__ == '__main__':
             gc.enable()
            
             
-
+            print(tour)
             end_start = ((end_time - start_time)/num_calls)/tentonine 
             finalTotalTime = finalTotalTime + end_start
             weights.append(cost)
