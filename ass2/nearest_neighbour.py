@@ -65,14 +65,18 @@ def nearest_neighbour_algorithm(graph):
     points = [0] * len(graph)
     for i in range(len(points)):
         points[i] = i+1
+    
+    #first node of the cicle
     current = points[0]
+    #Hamiltonian cicle
     tour = [current]
+    #points to visit
     points.remove(current)
 
     while len(points) > 0:
         next = points[0]
         for point in points:
-            
+            #find the next node that minimize w(current, point)
             if return_distance(graph, current, point) < return_distance(graph, current, next):
                 next = point
             
@@ -80,7 +84,7 @@ def nearest_neighbour_algorithm(graph):
         points.remove(next)
         current = next
     tour.append(tour[0])
-
+    #computing cost of the path
     cost = 0
     for i in range(len(tour)-1):
         cost += return_distance(graph, tour[i], tour[i+1])
@@ -112,7 +116,7 @@ if __name__ == '__main__':
     descriptions = []
     dimensions = []
     num_instances = 0 #count number of files
-    num_calls = 1
+    num_calls = 10
     tentonine = 1000000000
     finalTotalTime = 0.0
     errors = []
@@ -164,7 +168,7 @@ if __name__ == '__main__':
             gc.enable()
            
             
-
+            print(index)
             end_start = ((end_time - start_time)/num_calls)/tentonine 
             finalTotalTime = finalTotalTime + end_start
             weights.append(cost)
@@ -177,11 +181,17 @@ if __name__ == '__main__':
 
     
     zipFileSizeSol = zip(files, dimensions, weights, optimalsolution, measuredTime, errors)
+
+
   
-    tableRunOutput = tabulate.tabulate(zipFileSizeSol, headers=['File', 'Description', 'N', 'Solution', 'Optimal Solution','Time', 'Error'], tablefmt='orgtbl')
+    tableRunOutput = tabulate.tabulate(zipFileSizeSol, headers=['File',  'N', 'Solution', 'Optimal Solution','Time', 'Error'], tablefmt='orgtbl')
     print(tableRunOutput)
 
     print("Total time: (s) ", finalTotalTime)
+    print(measuredTime_Size)
+    print(weights)
+    print(measuredTime)
+
     plotResult(size_error, "Error", "Errors")
     plotResult(measuredTime_Size, 'Execution Time', "Measured Time")
   

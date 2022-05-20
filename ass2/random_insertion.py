@@ -9,6 +9,7 @@ import numpy as np
 import tabulate
 from time import perf_counter_ns
 import gc
+import matplotlib.pyplot as plt
 
 def converting(x):
     PI = 3.141592;
@@ -59,6 +60,20 @@ def return_distance(graph, u, v):
             return weight
     return 0
     
+def plotResult(xy_graph, yname):
+    # sort the keys (number of vertices) of the dictionary and plot them
+    plt.plot( *zip(*sorted(xy_graph) ), ':k')
+    #print(yname, " " , sorted(xy_graph))
+    plt.legend(["Measured time"])
+    #plt.yscale("log")
+    # x-axis label
+    plt.xlabel('Number of Vertices')
+    # frequency label
+    plt.ylabel(yname)
+    # plot title
+    plt.title('Random Insertion Algorithm plot')
+    # function to show the plot
+    plt.show()
 
 def random_insertion_algorithm(graph, starting_node):
     path = [starting_node] #circuit
@@ -86,16 +101,17 @@ def random_insertion_algorithm(graph, starting_node):
             if tempweight < min_weight:
                 min_weight = tempweight
                 position = i+1
-        
         path.insert(int(position) , rand_node)
         points.remove(rand_node)
+    
+    path.append(starting_node)
 
     cost = 0
     for i in range(len(path)-1):
         cost += return_distance(graph, path[i], path[i+1])
 
     cost += return_distance(graph, path[i+1], path[0])
-    path.append(path[i])
+
     return path, cost
 
 if __name__ == '__main__':
@@ -106,12 +122,13 @@ if __name__ == '__main__':
     weights=[]
     dimensions = []
     num_instances = 0 #count number of files
-    num_calls = 1
+    num_calls = 10
     tentonine = 1000000000
     finalTotalTime = 0.0
     errors = []
     optimalsolution = [7542,3323,6528,35002, 18659688 , 426, 40160, 134602, 21282, 21294, 50778, 6859, 7013]
-
+    measuredTime_Size = []
+    size_error = []
 
 
     #reading and sorting files
@@ -147,30 +164,37 @@ if __name__ == '__main__':
                 nodes.append([int(point[0]),float(point[1]), float(point[2])])
 
             graph = createGraph(nodes, dimension, weight_type)
-            starting_node  = next(iter(graph))
+            starting_node  = 1
              #calculate the time 
             start_time = perf_counter_ns()
             for i in range(num_calls):
                 tour, cost = random_insertion_algorithm(graph, starting_node)
             end_time = perf_counter_ns()
             gc.enable()
-           
-            
 
             end_start = ((end_time - start_time)/num_calls)/tentonine 
             finalTotalTime = finalTotalTime + end_start
             weights.append(cost)
             measuredTime.append(float(end_start)) 
-            errors.append(float((cost-optimalsolution[index])/(optimalsolution[index]*1.00)))
+            error = float((cost-optimalsolution[index])/(optimalsolution[index]*1.00))
+            errors.append(error)
+            measuredTime_Size.append((int(dimension),float(end_start)))
+            size_error.append((int(dimension),float(error)))
             index = index +1
 
     
     zipFileSizeSol = zip(files, dimensions, weights, optimalsolution, measuredTime, errors)
-  
+    
     tableRunOutput = tabulate.tabulate(zipFileSizeSol, headers=['File', 'N', 'Solution', 'Optimal Solution','Time', 'Error'], tablefmt='orgtbl')
     print(tableRunOutput)
 
+    print(size_error)
+
     print("Total time: (s) ", finalTotalTime)
+    plotResult(size_error, "Error")
+    plotResult(measuredTime_Size, 'Execution Time')
+
+
   
 
 
