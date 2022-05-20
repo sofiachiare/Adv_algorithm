@@ -189,6 +189,8 @@ if __name__ == '__main__':
 
     print("Total time: (s) ", finalTotalTime)
     print(measuredTime_Size)
+    print(weights)
+    print(measuredTime)
 
     plotResult(size_error, "Error", "Errors")
     plotResult(measuredTime_Size, 'Execution Time', "Measured Time")

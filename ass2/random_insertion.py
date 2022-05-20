@@ -122,7 +122,7 @@ if __name__ == '__main__':
     weights=[]
     dimensions = []
     num_instances = 0 #count number of files
-    num_calls = 1
+    num_calls = 10
     tentonine = 1000000000
     finalTotalTime = 0.0
     errors = []
@@ -171,9 +171,7 @@ if __name__ == '__main__':
                 tour, cost = random_insertion_algorithm(graph, starting_node)
             end_time = perf_counter_ns()
             gc.enable()
-           
-            
-            print(tour)
+
             end_start = ((end_time - start_time)/num_calls)/tentonine 
             finalTotalTime = finalTotalTime + end_start
             weights.append(cost)
