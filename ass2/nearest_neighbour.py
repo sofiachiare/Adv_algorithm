@@ -9,6 +9,7 @@ import numpy as np
 import tabulate
 from time import perf_counter_ns
 import gc
+import numpy as np
 
 def converting(x):
     PI = 3.141592;
@@ -184,16 +185,20 @@ if __name__ == '__main__':
 
 
   
-    tableRunOutput = tabulate.tabulate(zipFileSizeSol, headers=['File',  'N', 'Solution', 'Optimal Solution','Time', 'Error'], tablefmt='orgtbl')
-    print(tableRunOutput)
+    #tableRunOutput = tabulate.tabulate(zipFileSizeSol, headers=['File',  'N', 'Solution', 'Optimal Solution','Time', 'Error'], tablefmt='orgtbl')
+    #print(tableRunOutput)
 
     print("Total time: (s) ", finalTotalTime)
     print(measuredTime_Size)
     print(weights)
     print(measuredTime)
 
-    plotResult(size_error, "Error", "Errors")
-    plotResult(measuredTime_Size, 'Execution Time', "Measured Time")
+    #plotResult(size_error, "Error", "Errors")
+    #plotResult(measuredTime_Size, 'Execution Time', "Measured Time")
+
+    degree = np.zeros(10)
+    degree[2] = 45
+    print(np.nonzero(degree))
   
 
 
