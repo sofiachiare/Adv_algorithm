@@ -254,7 +254,7 @@ if __name__ == '__main__':
     print("measured time", measuredTime)
     print("complexity", complexity)
     print("discovery time", best_cut)
-    print("Totoal time", total_run_times)
+    print("Total time", total_run_times)
     
     plotResult(measuredTime, complexity, dimensions)
 
