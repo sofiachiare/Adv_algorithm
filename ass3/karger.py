@@ -13,9 +13,9 @@ import copy
 import tabulate
 from time import perf_counter_ns
 import gc
-from threading import Thread, Event
+import datetime as dt
 
-stop_event = Event()
+from wrapt_timeout_decorator import *
 
 class Graph :
 
@@ -33,8 +33,6 @@ class Graph :
             self.degree[u-1] += weight
             self.degree[v-1] += weight
                     
-        #for i in range(n):
-            #self.degree[i-1] = sum(self.matrix[i-1])
             
     
     def contract_edge (self,u,v): #O(n-2)
@@ -51,8 +49,6 @@ class Graph :
             self.matrix[v][w] = 0
             self.matrix[w][v] = 0
         
-        
-    
 
     def get_edge(self): 
         nonzeroind = np.nonzero(self.degree)[0]
@@ -93,12 +89,12 @@ def random_select(c,k):
 
 def edge_select (d, w) :
     #build comulative weights array of d
-    cd = [0] * g.vertex
+    cd = [0] * d.size
     for k in range(d.size):
         cd[k] = cd[k-1] + d[k]
     u,f = random_select(cd,k)
 
-    cw = [0] * g.vertex
+    cw = [0] * d.size
     for k in range(d.size):
         cw[k] = cw[k-1] + w[u][k]
    
@@ -106,9 +102,8 @@ def edge_select (d, w) :
 
     return u, v
 
-def contract(graph, k):
-    #graph = copy.deepcopy(g)
-    #graph = g
+def contract(g, k):
+    graph = copy.deepcopy(g)
     n = np.count_nonzero(graph.degree)
     for i in range(n - k): 
         u, v = edge_select(graph.degree, graph.matrix)
@@ -118,14 +113,11 @@ def contract(graph, k):
 
 def recursive_contract(g):
     n = np.count_nonzero(g.degree)
-    if n <= 6 :  #RIGHT
+    if n <= 6 : 
         graph = contract(g, 2)
         return graph.get_edge()
 
     t = math.floor((n/math.sqrt(2)) + 1)
-    d = copy.deepcopy(g.degree)
-    w = copy.deepcopy(g.matrix)
-    g = copy.deepcopy(g)
     g1 = contract(g, t)
     m1 = recursive_contract(g1)
     g2 = contract(g, t)
@@ -137,7 +129,7 @@ def plotResult(valone, valtwo, vertices):
     plt.plot(vertices, valone, ':k')
     plt.plot(vertices, valtwo, 'r')
     plt.legend(["Measured time", "nlogn"])
-    #plt.yscale("log")
+    plt.yscale("log")
     # x-axis label
     plt.xlabel('Number of Vertices')
     # frequency label
@@ -147,23 +139,22 @@ def plotResult(valone, valtwo, vertices):
     # function to show the plot
     plt.show()
 
-def running_code (g, num_calls):
-    cut = []
+
+def running_code (edges, n, m, num_calls):
     run_times = 0
     seconds_cut = []
-    avg_time = 0
     tentonine = 1000000000
     for i in range(num_calls):
-        g = Graph(edges, n, m)
+        graph = Graph(edges, n, m)
         start_time = perf_counter_ns()
-        c = recursive_contract(g)
+        c = recursive_contract(graph)
         end_time = perf_counter_ns()
-        cut.append(c)
         time = (end_time - start_time)/tentonine #seconds of the discovery cut
         seconds_cut.append((int(c), time))
         run_times += time
-        if stop_event.is_set():
-            break
+    return run_times, seconds_cut
+
+
 
 if __name__ == '__main__':
     directory = "/Users/sofiachiarello/Desktop/unipd/advanced algorthm/Adv_algorithm/ass3/dataset"
@@ -184,7 +175,7 @@ if __name__ == '__main__':
     
     files = sorted(files)
     index = 0    # iterate over files in that directory
-    for filename in files[40:45]: 
+    for filename in files: 
         f = os.path.join(directory, filename)
 
        
@@ -204,52 +195,48 @@ if __name__ == '__main__':
             dimensions.append(n) 
             num_calls = int(math.log(n)**2)
            
-            cut = []
             #calculate times for one graph
             gc.disable()
             run_times = 0
             seconds_cut = []
             avg_time = 0
+            
+            run_times = 0
+            seconds_cut = []
+            tentonine = 1000000000
+
+            count = 0
+            time_out_after = dt.timedelta(seconds=600)
+            start = dt.datetime.now()
             for i in range(num_calls):
-                g = Graph(edges, n, m)
+
+                if dt.datetime.now() > start + time_out_after:
+                    break
+                count += 1
+                graph = Graph(edges, n, m)
                 start_time = perf_counter_ns()
-                c = recursive_contract(g)
+                c = recursive_contract(graph)
                 end_time = perf_counter_ns()
-                cut.append(c)
                 time = (end_time - start_time)/tentonine #seconds of the discovery cut
                 seconds_cut.append((int(c), time))
                 run_times += time
-                if stop_event.is_set():
-                    break
-
-            gc.enable()
-
-            
- 
-           
-            
+             
             total_run_times.append(run_times)
-            avg_time = ((run_times)/num_calls)
+            avg_time = ((run_times)/count)
             ###----APPEND MEASURED TIME OF ALG-----
             measuredTime.append(avg_time)
-            ##----APPEND WEIGHTS OF THE GRAPH-----
-            cut = int(min(cut))
-            #print(cut)
-            weights.append(cut)
-
             total_time += avg_time
             ##----APPEND THEORICAL COMPLEXITY-----
-            comp = (n**2)*(math.log(n)**3)
+            comp = (n**2)*(math.log(n))
             complexity.append(comp)
             ##----APPEND DISCOVERY TIME-----
             seconds_cut = sorted(seconds_cut, key=lambda item: item[0])
-            
             best_cut.append(seconds_cut[0][1])
+            ##----APPEND WEIGHTS OF THE GRAPH-----
+            weights.append(seconds_cut[0][0])
 
-            #MANCA
-            # - STAMPARE GRAFICI
             
-    zipFileSizeSol = zip(files[40:45], dimensions, weights, measuredTime)
+    zipFileSizeSol = zip(files, dimensions, weights, measuredTime)
 
 
   
@@ -258,7 +245,7 @@ if __name__ == '__main__':
     print("Total time for all alg/num_calls",total_time)
     
 
-    zipFileBestCut = zip(files[40:45], dimensions,weights, best_cut, total_run_times)
+    zipFileBestCut = zip(files, dimensions,weights, best_cut, total_run_times)
     
     tableOutput = tabulate.tabulate(zipFileBestCut, headers=['File', 'N', 'Minimun Cost Cut', 'Discovery Time','TotalTime'], tablefmt='orgtbl')
     print(tableOutput)
@@ -269,7 +256,7 @@ if __name__ == '__main__':
     print("discovery time", best_cut)
     print("Totoal time", total_run_times)
     
-    #plotResult(measuredTime, complexity, dimensions)
+    plotResult(measuredTime, complexity, dimensions)
 
 
             
